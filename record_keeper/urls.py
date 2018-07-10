@@ -17,9 +17,11 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 from call_records.api.viewsets import CallRecordViewSet
+from telephone_bill.api.viewsets import TelephoneBillViewSet
 
 router = routers.DefaultRouter()
 router.register(r'CallRecords', CallRecordViewSet, base_name='CallRecord')
+router.register(r'TelephoneBill', TelephoneBillViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
