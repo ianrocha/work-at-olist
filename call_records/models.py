@@ -19,4 +19,4 @@ class CallRecord(models.Model):
     record_timestamp = models.DateTimeField()
 
     def __str__(self):
-        return 'Call ID: {}, Source: {}, Type: {}'.format(self.call_id, self.phone_source, self.record_type)
+        return 'Call ID: {}, Record Type: {}'.format(self.call_id, self.record_type)
