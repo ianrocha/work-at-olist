@@ -1,8 +1,8 @@
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ReadOnlyModelViewSet
 from telephone_bill.models import TelephoneBill
 from .serializers import TelephoneBillSerializer
 
 
-class TelephoneBillViewSet(ModelViewSet):
+class TelephoneBillViewSet(ReadOnlyModelViewSet):
     serializer_class = TelephoneBillSerializer
     queryset = TelephoneBill.objects.all()
