@@ -23,6 +23,7 @@ router = routers.DefaultRouter()
 router.register(r'CallRecords', CallRecordViewSet, base_name='CallRecord')
 router.register(r'TelephoneBill', TelephoneBillViewSet)
 
+
 urlpatterns = [
     path('', include(router.urls)),
     path('admin/', admin.site.urls),
