@@ -21,8 +21,7 @@ from telephone_bill.api.viewsets import TelephoneBillViewSet
 
 router = routers.DefaultRouter()
 router.register(r'CallRecords', CallRecordViewSet, base_name='CallRecord')
-router.register(r'TelephoneBill', TelephoneBillViewSet)
-
+router.register(r'TelephoneBill', TelephoneBillViewSet, base_name='TelephoneBill')
 
 urlpatterns = [
     path('', include(router.urls)),

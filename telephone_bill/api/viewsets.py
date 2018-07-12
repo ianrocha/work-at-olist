@@ -9,4 +9,12 @@ class TelephoneBillViewSet(ModelViewSet):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticatedOrReadOnly,)
     serializer_class = TelephoneBillSerializer
-    queryset = TelephoneBill.objects.all()
+
+    def get_queryset(self):
+        source_phone = self.request.query_params.get('source', None)
+
+        if source_phone is not None:
+            queryset = TelephoneBill.objects.filter(source=source_phone)
+            return queryset
+        else:
+            return
