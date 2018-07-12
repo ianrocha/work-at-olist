@@ -12,6 +12,7 @@ from telephone_bill.models import TelephoneBill
 class CallRecordSerializer(ModelSerializer):
     class Meta:
         validators = [
+            # Validate call_id and record_type, together they can't repeat
             UniqueTogetherValidator(
                 queryset=CallRecord.objects.all(),
                 fields=('call_id', 'record_type'),
@@ -43,6 +44,7 @@ class CallRecordSerializer(ModelSerializer):
         return record
 
     def validate_end_record(self, validated_data):
+        #  When the record_type is equal 'end', the record can't have the phone-source or phone-destination
         if validated_data['record_type'] == 'end':
             if validated_data['phone_source'] or validated_data['phone_destination']:
                 raise ValidationError('End record_type has no phone source or phone destination')
@@ -66,7 +68,7 @@ class CallRecordSerializer(ModelSerializer):
             call_start = pair_record[0]['record_timestamp']
 
             call_end = validated_data['record_timestamp']
-
+        # TODO: Try to change the format saved to MM-YYYY
         bill_record.period = call_end.date()
 
         # Calculate the call duration
@@ -79,6 +81,7 @@ class CallRecordSerializer(ModelSerializer):
         call_price = self.calculate_call_price(duration_in_seconds, pair_record[0]['record_hour'])
         bill_record.price = call_price
 
+        # Save the bill record to the TelephoneBill model
         bill_record.save()
         return
 

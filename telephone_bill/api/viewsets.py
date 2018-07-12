@@ -15,6 +15,7 @@ class TelephoneBillViewSet(ModelViewSet):
         bill_period = self.request.query_params.get('period', None)
 
         if source_phone is not None:
+            # TODO: Add the filter for previous month
             queryset = TelephoneBill.objects.filter(source__exact=source_phone)
 
             if bill_period is not None:

@@ -12,4 +12,5 @@ class TelephoneBill(models.Model):
     start_date = models.DateField()
     duration = models.DurationField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    # TODO: Try to change period format to month-year
     period = models.DateField()
