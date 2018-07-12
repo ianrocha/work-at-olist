@@ -12,9 +12,14 @@ class TelephoneBillViewSet(ModelViewSet):
 
     def get_queryset(self):
         source_phone = self.request.query_params.get('source', None)
+        bill_period = self.request.query_params.get('period', None)
 
         if source_phone is not None:
-            queryset = TelephoneBill.objects.filter(source=source_phone)
+            queryset = TelephoneBill.objects.filter(source__exact=source_phone)
+
+            if bill_period is not None:
+                queryset = queryset.filter(period=bill_period)
+
             return queryset
         else:
             return
