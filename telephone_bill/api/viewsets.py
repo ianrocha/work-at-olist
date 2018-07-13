@@ -23,6 +23,4 @@ class TelephoneBillViewSet(ModelViewSet):
                 year = datetime.date.today().year
                 bill_period = str(month) + '-' + str(year)
 
-            return queryset.filter(period__exact=bill_period)
-        else:
-            return
+            return queryset.filter(period__exact=bill_period).order_by('start_date', 'start_time')

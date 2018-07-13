@@ -9,4 +9,4 @@ class CallRecordViewSet(ModelViewSet):
     serializer_class = CallRecordSerializer
 
     def get_queryset(self):
-        return CallRecord.objects.all()
+        return CallRecord.objects.all().order_by('call_id', '-record_type')

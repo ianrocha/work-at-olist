@@ -16,4 +16,7 @@ class TelephoneBill(models.Model):
     period = models.CharField(max_length=7, validators=[period_validator])
 
     def __str__(self):
-        return 'Source: {} Period: {}'.format(self.source, self.period)
+        return 'Source: {} Period: {} Start Date: {} Start Time: {}'.format(self.source,
+                                                                            self.period,
+                                                                            self.start_date,
+                                                                            self.start_time)
