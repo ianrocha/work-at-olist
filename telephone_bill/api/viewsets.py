@@ -14,7 +14,7 @@ class TelephoneBillViewSet(ModelViewSet):
 
     def get_queryset(self):
         """
-        :return: Queryset filtered by source number and period
+        Queryset of TelephoneBillModel
         """
         source_phone = self.request.query_params.get('source', None)
         bill_period = self.request.query_params.get('period', None)
@@ -28,6 +28,9 @@ class TelephoneBillViewSet(ModelViewSet):
                 bill_period = str(month) + '-' + str(year)
 
             return queryset.filter(period__exact=bill_period).order_by('start_date', 'start_time')
+        else:
+            queryset = TelephoneBill.objects.all()
+            return queryset
 
     def list(self, request, *args, **kwargs):
         """

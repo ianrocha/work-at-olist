@@ -5,6 +5,11 @@ from .serializers import CallRecordSerializer
 
 
 class CallRecordViewSet(ModelViewSet):
+    """
+    create:
+    Create a new Call_Record in CallRecordModel and a new record in TelephoneBillModel
+    if the Call_record already has a pair in CallRecordModel.
+    """
     permission_classes = (AllowAny,)
     serializer_class = CallRecordSerializer
 

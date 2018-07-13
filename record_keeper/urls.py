@@ -16,14 +16,19 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
+from rest_framework_swagger.views import get_swagger_view
+
 from call_records.api.viewsets import CallRecordViewSet
 from telephone_bill.api.viewsets import TelephoneBillViewSet
 
 router = routers.DefaultRouter()
 router.register(r'CallRecords', CallRecordViewSet, base_name='CallRecord')
 router.register(r'TelephoneBill', TelephoneBillViewSet, base_name='TelephoneBill')
+schema_view = get_swagger_view(title='Record Keeper')
+
 
 urlpatterns = [
     path('', include(router.urls)),
     path('admin/', admin.site.urls),
+    path('docs/', schema_view)
 ]

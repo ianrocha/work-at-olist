@@ -25,9 +25,8 @@ class CallRecordSerializer(ModelSerializer):
 
     def create(self, validated_data):
         """
-        Create a new Call_Record in CallRecord Model
-        :param validated_data: Call_Record sent by API
-        :return: The Call_Record that was created
+        create:
+        Create a new Call_Record in CallRecordModel and a new record in TelephoneBillModel
         """
         self.validate_end_record(validated_data)
 
