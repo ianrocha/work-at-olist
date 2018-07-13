@@ -69,14 +69,14 @@ class CallRecordSerializer(ModelSerializer):
         bill_record = TelephoneBill()
 
         if validated_data['record_type'] == 'start':
+            # Format the bill record
             bill_record.source = validated_data['phone_source']
             bill_record.destination = validated_data['phone_destination']
             bill_record.start_time = validated_data['record_timestamp'].time()
             bill_record.start_date = validated_data['record_timestamp'].date()
             call_start = validated_data['record_timestamp']
             call_end = pair_record[0]['record_timestamp']
-            # TODO: Test
-            start_hour = validated_data['record_timestamp'].hour()
+            start_hour = validated_data['record_timestamp'].hour
         else:
             bill_record.source = pair_record[0]['phone_source']
             bill_record.destination = pair_record[0]['phone_destination']
@@ -84,11 +84,13 @@ class CallRecordSerializer(ModelSerializer):
             bill_record.start_date = pair_record[0]['record_timestamp'].date()
             call_start = pair_record[0]['record_timestamp']
             call_end = validated_data['record_timestamp']
-            # TODO: Test
             start_hour = pair_record[0]['record_hour']
 
-        # TODO: Try to change the format saved to MM-YYYY
-        bill_record.period = call_end.date()
+        # Format the period of the call
+        period_month = call_end.month
+        period_year = call_end.year
+        call_period = str(period_month) + '-' + str(period_year)
+        bill_record.period = call_period
 
         # Calculate the call duration
         call_duration = call_end - call_start
