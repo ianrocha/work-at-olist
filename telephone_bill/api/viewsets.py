@@ -1,3 +1,4 @@
+import datetime
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.viewsets import ModelViewSet
@@ -15,12 +16,13 @@ class TelephoneBillViewSet(ModelViewSet):
         bill_period = self.request.query_params.get('period', None)
 
         if source_phone is not None:
-            # TODO: Add the filter for previous month
             queryset = TelephoneBill.objects.filter(source__exact=source_phone)
 
-            if bill_period is not None:
-                queryset = queryset.filter(period=bill_period)
+            if bill_period is None:
+                month = datetime.date.today().month - 1
+                year = datetime.date.today().year
+                bill_period = str(month) + '-' + str(year)
 
-            return queryset
+            return queryset.filter(period__exact=bill_period)
         else:
             return
