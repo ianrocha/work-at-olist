@@ -25,8 +25,8 @@ class CallRecordSerializer(ModelSerializer):
 
     def create(self, validated_data):
         """
-        create:
-        Create a new Call_Record in CallRecordModel and a new record in TelephoneBillModel
+        Create a new Call_Record in CallRecordModel
+        And a new record in TelephoneBillModel if the Call_record already has a pair in CallRecordModel.
         """
         self.validate_end_record(validated_data)
 
@@ -50,10 +50,10 @@ class CallRecordSerializer(ModelSerializer):
     def validate_end_record(self, validated_data):
         """
         Validate record_type is equal 'end', the record can't have the phone-source or phone-destination
-        :param validated_data: Call Record sent by API
+        :param:
+        validated_data: Call Record sent by API
         :return: Nothing or Raises a Validation Error
         """
-        #
         if validated_data['record_type'] == 'end':
             if validated_data['phone_source'] or validated_data['phone_destination']:
                 raise ValidationError('End record_type has no phone source or phone destination')
@@ -61,8 +61,9 @@ class CallRecordSerializer(ModelSerializer):
     def insert_bill_record(self, validated_data, pair_record):
         """
         Insert a new bill record to TelephoneBill model
-        :param validated_data: The call record sent by API
-        :param pair_record: The pair of the call record
+        :param:
+        validated_data - The call record sent by API
+        pair_record - The pair of the call record
         :return: Nothing
         """
         bill_record = TelephoneBill()
@@ -108,9 +109,11 @@ class CallRecordSerializer(ModelSerializer):
     def calculate_call_price(self, duration, start_hour):
         """
         Determine the price of a bill call record
-        :param duration: The duration of a call in minutes
-        :param start_hour: The hour that the call started
-        :return: The price of a call
+        :param:
+        duration - The duration of a call in minutes
+        start_hour - The hour that the call started
+        :return:
+        The price of a call
         """
         initial_price = 0.36
         reduced_tariff = 0.0
