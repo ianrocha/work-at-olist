@@ -20,8 +20,10 @@ class TestCreateCallRecord(APITestCase):
         }
 
     def test_create_record_call(self):
+        print('Executing Create RecordCall Test...')
         response = self.client.post(reverse('CallRecord-list'), self.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        print('Create RecordCall Test Passed!')
 
 
 class TestReadCallRecord(APITestCase):
@@ -44,10 +46,13 @@ class TestReadCallRecord(APITestCase):
         )
 
     def test_read_record_list(self):
+        print('\nExecuting List RecordCall Test...')
         response = self.client.get(reverse('CallRecord-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        print('List RecordCall Test Passed!')
 
     def test_read_record_detail(self):
+        print('\nExecuting Detail RecordCall Test...')
         response = self.client.get(reverse('CallRecord-detail', args=[self.record_start.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['id'], 101)
@@ -56,12 +61,12 @@ class TestReadCallRecord(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['id'], 102)
         self.assertEqual(response.data['record_type'], 'end')
+        print('Detail RecordCall Test Passed!')
 
 
 class TestUpdateRecord(APITestCase):
     def setUp(self):
-        self.user = User.objects.create_superuser('admin', 'john@snow.com', 'adminpassword')
-        self.token = Token.objects.create(user=self.user)
+        self.user = User.objects.create_superuser('admin', 'admin@admin.com', 'adminpassword')
         self.call_record = CallRecord.objects.create(
             id=103,
             call_id=36,
@@ -74,12 +79,13 @@ class TestUpdateRecord(APITestCase):
         self.data.update({'call_id': 37})
 
     def test_update_record(self):
-        self.client.force_login(user=self.user)
-        response = self.client.put(reverse('CallRecord-detail', args=[self.call_record.id]), data=self.data,
-                                   HTTP_AUTHORIZATION=self.token)
+        print('\nExecuting Update RecordCall Test...')
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(reverse('CallRecord-detail', args=[self.call_record.id]), data=self.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertNotEqual(response.data['call_id'], 36)
         self.assertEqual(response.data['call_id'], 37)
+        print('Update RecordCall Test Passed!')
 
 
 class TestDeleteRecord(APITestCase):
@@ -94,6 +100,8 @@ class TestDeleteRecord(APITestCase):
         )
 
     def test_delete_record(self):
+        print('\nExecuting Delete RecordCall Test...')
         response = self.client.delete(reverse('CallRecord-detail', args=[self.call_record.id]))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        print('Update RecordCall Test Passed!')
 
