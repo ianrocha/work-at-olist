@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User
 from rest_framework import status
-from rest_framework.authtoken.models import Token
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
@@ -103,5 +102,5 @@ class TestDeleteRecord(APITestCase):
         print('\nExecuting Delete RecordCall Test...')
         response = self.client.delete(reverse('CallRecord-detail', args=[self.call_record.id]))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        print('Update RecordCall Test Passed!')
+        print('Delete RecordCall Test Passed!')
 
