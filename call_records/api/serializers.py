@@ -1,11 +1,8 @@
-from datetime import datetime
-
-from django.db.models.functions import ExtractHour, ExtractMinute, ExtractSecond
+from django.db.models.functions import ExtractHour
 from rest_framework.serializers import ModelSerializer, ValidationError
 from rest_framework.validators import UniqueTogetherValidator
 
 from call_records.models import CallRecord
-from telephone_bill.api.serializers import TelephoneBillSerializer
 from telephone_bill.models import TelephoneBill
 
 
