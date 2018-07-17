@@ -1,3 +1,35 @@
+# Description
+This project was made like a challenge to work at Olist.
+
+The API will receive call records and create a bill for the phone number that made the call.
+For this to happen the API will need a pair of record (one start call and one end call record).
+
+The project was hosted on Heroku: https://api-record-keeper.herokuapp.com/
+
+You can visit the API on Heroku or follow the 'Installing and testing instructions' 
+to run locally.
+
+# Installing and testing instructions
+1. Make a clone of this repo
+2. Install all requirements listed on requirements-dev.txt
+3. Run 'python manage.py migrate' to create the database
+
+To Run the project locally:
+1. Run 'python manage.py runserver' to start the project locally
+2. Go to your localhost where you can use the API
+
+To Run the test-cases:
+1. Run 'python manage.py test'
+
+# Work Environment
+Operational System: Windows 10
+
+IDE: PyCharm
+
+Libraries: Python 3.6.6, Pip 10.0.1, Django 2.0.7, DjangoRestFrameWork 3.8.2, DjangoRestSwagger 2.2.0,
+python-decouple, dj-static, dj-database-url
+
+
 # Work at Olist
 
 [Olist](https://olist.com/) is a company that offers an integration platform
