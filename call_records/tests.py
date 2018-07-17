@@ -17,11 +17,44 @@ class TestCreateCallRecord(APITestCase):
             "record_type": 'start',
             "record_timestamp": '2014-02-21T15:00:00Z'
         }
+        self.record_start = CallRecord.objects.create(
+            id=101,
+            call_id=35,
+            phone_source='71992071927',
+            phone_destination='71992072023',
+            record_type='start',
+            record_timestamp='2014-02-21T15:00:00Z'
+        )
+        self.data_error = {
+            "id": 102,
+            "call_id": 35,
+            "phone_source": '71992071927',
+            "phone_destination": '71992072023',
+            "record_type": 'start',
+            "record_timestamp": '2014-02-21T15:00:00Z'
+        }
 
     def test_create_record_call(self):
         print('Executing Create RecordCall Test...')
         response = self.client.post(reverse('CallRecord-list'), self.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # Test unique call_id+record_type
+        response = self.client.post(reverse('CallRecord-list'), self.data_error)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['non_field_errors'], ['The record call_id + record_type already exists'])
+
+        # Test phone_source validation
+        self.data_error['phone_source'] = '719920719'
+        response = self.client.post(reverse('CallRecord-list'), self.data_error)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['phone_source'], ['Enter a valid value.'])
+
+        # Test phone_destination validation
+        self.data_error['phone_destination'] = '719920719'
+        response = self.client.post(reverse('CallRecord-list'), self.data_error)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['phone_destination'], ['Enter a valid value.'])
         print('Create RecordCall Test Passed!')
 
 
