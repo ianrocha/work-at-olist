@@ -1,6 +1,6 @@
 import datetime
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from telephone_bill.models import TelephoneBill
@@ -9,7 +9,7 @@ from .serializers import TelephoneBillSerializer
 
 class TelephoneBillViewSet(ModelViewSet):
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (AllowAny,)
     serializer_class = TelephoneBillSerializer
 
     def get_queryset(self):
