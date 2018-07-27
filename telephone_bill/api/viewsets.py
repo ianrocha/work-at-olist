@@ -1,8 +1,11 @@
 import datetime
+
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
+from django_filters.rest_framework import DjangoFilterBackend
+
 from telephone_bill.models import TelephoneBill
 from .serializers import TelephoneBillSerializer
 
@@ -10,26 +13,28 @@ from .serializers import TelephoneBillSerializer
 class TelephoneBillViewSet(ModelViewSet):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (AllowAny,)
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields = ('source', 'period')
     serializer_class = TelephoneBillSerializer
 
     def get_queryset(self):
         """
         Queryset of TelephoneBillModel
         """
-        source_phone = self.request.query_params.get('source', None)
-        bill_period = self.request.query_params.get('period', None)
+        source_phone = self.request.query_params.get('source')
+        bill_period = self.request.query_params.get('period')
 
-        if source_phone is not None:
-            queryset = TelephoneBill.objects.filter(source__exact=source_phone)
+        if source_phone:
+            queryset = TelephoneBill.objects.filter(source__exact=source_phone).order_by('start_date', 'start_time')
 
-            if bill_period is None:
+            if not bill_period:
                 month = datetime.date.today().month - 1
                 year = datetime.date.today().year
                 bill_period = str(month) + '-' + str(year)
 
             return queryset.filter(period__exact=bill_period).order_by('start_date', 'start_time')
         else:
-            queryset = TelephoneBill.objects.all()
+            queryset = TelephoneBill.objects.all().order_by('start_date', 'start_time')
             return queryset
 
     def list(self, request, *args, **kwargs):
