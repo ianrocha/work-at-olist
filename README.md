@@ -27,7 +27,7 @@ Operational System: Windows 10
 IDE: PyCharm
 
 Libraries: Python 3.6.6, Pip 10.0.1, Django 2.0.7, DjangoRestFrameWork 3.8.2, DjangoRestSwagger 2.2.0,
-python-decouple, dj-static, dj-database-url
+python-decouple 3.1, dj-static 0.0.6, dj-database-url 0.5.0, django-filters 2.0.0.
 
 
 # Work at Olist
