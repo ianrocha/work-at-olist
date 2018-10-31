@@ -1,5 +1,6 @@
 from django.db.models.functions import ExtractHour
-from rest_framework.serializers import ModelSerializer, ValidationError
+from rest_framework.exceptions import APIException
+from rest_framework.serializers import ModelSerializer
 from rest_framework.validators import UniqueTogetherValidator
 
 from call_records.models import CallRecord
@@ -25,13 +26,14 @@ class CallRecordSerializer(ModelSerializer):
         Create a new Call_Record in CallRecordModel
         And a new record in TelephoneBillModel if the Call_record already has a pair in CallRecordModel.
         """
-        self.validate_end_record(validated_data)
 
         if validated_data['record_type'] == 'start':
+            self.validate_start_record(validated_data)
             pair_record = CallRecord.objects.filter(call_id__exact=validated_data['call_id'],
                                                     record_type__exact='end'
                                                     ).annotate(record_hour=ExtractHour('record_timestamp')).values()
         else:
+            self.validate_end_record(validated_data)
             pair_record = CallRecord.objects.filter(call_id__exact=validated_data['call_id'],
                                                     record_type__exact='start'
                                                     ).annotate(record_hour=ExtractHour('record_timestamp')).values()
@@ -44,16 +46,33 @@ class CallRecordSerializer(ModelSerializer):
         record.save()
         return record
 
+    def validate_start_record(self, validated_data):
+        """
+        Validate record_type is equal 'start', the record must have the phone-source and phone-destination
+        :param:
+        validated_data: Call Record sent by API
+        :return: Nothing or Raises a Internal Server Error
+        """
+        # if validated_data['record_type'] == 'start':
+        if validated_data['phone_source'] == '' or validated_data['phone_destination'] == '':
+            # raise ValidationError(detail='')
+            error = InternalServerError()
+            error.detail = 'Start record_type must have a phone source and a phone destination'
+            raise error
+
     def validate_end_record(self, validated_data):
         """
         Validate record_type is equal 'end', the record can't have the phone-source or phone-destination
         :param:
         validated_data: Call Record sent by API
-        :return: Nothing or Raises a Validation Error
+        :return: Nothing or Raises a Internal Server Error
         """
-        if validated_data['record_type'] == 'end':
-            if validated_data['phone_source'] or validated_data['phone_destination']:
-                raise ValidationError('End record_type has no phone source or phone destination')
+        # if validated_data['record_type'] == 'end':
+        if validated_data['phone_source'] or validated_data['phone_destination']:
+            # raise ValidationError(detail='')
+            error = InternalServerError()
+            error.detail = 'End record_type has no phone source or phone destination'
+            raise error
 
     def insert_bill_record(self, validated_data, pair_record):
         """
@@ -120,3 +139,9 @@ class CallRecordSerializer(ModelSerializer):
             return initial_price + (duration * standard_time)
         else:
             return initial_price + (duration * reduced_tariff)
+
+
+class InternalServerError(APIException):
+    status_code = 500
+    default_code = 'internal_server_error'
+    default_detail = 'Internal Server Error'
