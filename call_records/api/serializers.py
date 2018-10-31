@@ -1,13 +1,18 @@
+from django.core.validators import RegexValidator
 from django.db.models.functions import ExtractHour
+from rest_framework import serializers
 from rest_framework.exceptions import APIException
-from rest_framework.serializers import ModelSerializer
 from rest_framework.validators import UniqueTogetherValidator
 
 from call_records.models import CallRecord
 from telephone_bill.models import TelephoneBill
 
 
-class CallRecordSerializer(ModelSerializer):
+class CallRecordSerializer(serializers.ModelSerializer):
+    phone_validator = RegexValidator(regex=r'^((10)|([1-9][1-9]))\d{8,9}$')
+    phone_source = serializers.CharField(max_length=11, validators=[phone_validator])
+    phone_destination = serializers.CharField(max_length=11, validators=[phone_validator])
+
     class Meta:
         validators = [
             # Validate call_id and record_type, together they can't repeat
@@ -139,6 +144,14 @@ class CallRecordSerializer(ModelSerializer):
             return initial_price + (duration * standard_time)
         else:
             return initial_price + (duration * reduced_tariff)
+
+    # def validate_phone(self, phone):
+    #     if phone.RegexValidator(regex=r'^((10)|([1-9][1-9]))\d{8,9}$'):
+    #         return True
+    #     else:
+    #         error = InternalServerError()
+    #         error.detail = 'Invalid Phone Number'
+    #         raise error
 
 
 class InternalServerError(APIException):
