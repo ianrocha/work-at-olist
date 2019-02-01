@@ -25,7 +25,7 @@ class TelephoneBillViewSet(ModelViewSet):
         bill_period = self.request.query_params.get('period')
 
         if source_phone:
-            queryset = TelephoneBill.objects.filter(source__exact=source_phone).order_by('start_date', 'start_time')
+            queryset = TelephoneBill.objects.filtered_by_source(source=source_phone)
 
             if not bill_period:
                 month = datetime.date.today().month - 1
@@ -61,74 +61,3 @@ class TelephoneBillViewSet(ModelViewSet):
             return Response(serializer.data)
         else:
             return Response({'Message': 'You need to pass the source number. For more info go to /docs'})
-
-    def create(self, request, *args, **kwargs):
-        """
-        Create a Bill Record
-        :param:
-        data:
-        {
-        "source" - The subscriber phone number that originated the call;
-        "destination" - The phone number receiving the call;
-        "start_time" - The time it has began;
-        "start_date" - The day that the call was made;
-        "duration" - The duration of the call;
-        "price" - The price of the call;
-        "period" - The month of the call.
-        }
-        """
-        return super(TelephoneBillViewSet, self).create(request, *args, **kwargs)
-
-    def retrieve(self, request, *args, **kwargs):
-        """
-        Get a Bill Record
-        :param:
-        id: Number of the bill record.
-        """
-        return super(TelephoneBillViewSet, self).retrieve(request, *args, **kwargs)
-
-    def destroy(self, request, *args, **kwargs):
-        """
-        Delete a Bill Record
-        :param:
-        id: Number of the bill record.
-        """
-        return super(TelephoneBillViewSet, self).destroy(request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        """
-        Update all the fields of a Bill Record
-        :param:
-        id: Number of the bill record;
-        data: (All fields are required)
-        {
-        "source" - The subscriber phone number that originated the call;
-        "destination" - The phone number receiving the call;
-        "start_time" - The time it has began;
-        "start_date" - The day that the call was made;
-        "duration" - The duration of the call;
-        "price" - The price of the call;
-        "period" - The month of the call.
-        }
-        return: The bill record updated
-        """
-        return super(TelephoneBillViewSet, self).update(request, *args, **kwargs)
-
-    def partial_update(self, request, *args, **kwargs):
-        """
-        Update a field of a Bill Record
-        :param:
-        id: Number of the bill record;
-        data: (Only the field to be updated is required)
-        {
-        "source" - The subscriber phone number that originated the call;
-        "destination" - The phone number receiving the call;
-        "start_time" - The time it has began;
-        "start_date" - The day that the call was made;
-        "duration" - The duration of the call;
-        "price" - The price of the call;
-        "period" - The month of the call.
-        }
-        return: The bill record updated
-        """
-        return super(TelephoneBillViewSet, self).partial_update(request, *args, **kwargs)
