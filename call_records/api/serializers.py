@@ -1,6 +1,4 @@
-from django.db.models.functions import ExtractHour
 from rest_framework import serializers
-from rest_framework.exceptions import APIException
 from rest_framework.validators import UniqueTogetherValidator
 
 from call_records.models import CallRecord
@@ -30,14 +28,13 @@ class CallRecordSerializer(serializers.ModelSerializer):
         And a new record in TelephoneBillModel if the Call_record already has a pair in CallRecordModel.
         """
 
+        call_id = validated_data['call_id']
         if validated_data['record_type'] == 'start':
-            pair_record = CallRecord.objects.filter(call_id__exact=validated_data['call_id'],
-                                                    record_type__exact='end'
-                                                    ).annotate(record_hour=ExtractHour('record_timestamp')).values()
+            record_type = 'end'
         else:
-            pair_record = CallRecord.objects.filter(call_id__exact=validated_data['call_id'],
-                                                    record_type__exact='start'
-                                                    ).annotate(record_hour=ExtractHour('record_timestamp')).values()
+            record_type = 'start'
+
+        pair_record = CallRecord.objects.get_record_pair(call_id=call_id, record_type=record_type)
 
         # If a pair_record was found add a record to telephone bill
         if pair_record:
@@ -112,9 +109,3 @@ class CallRecordSerializer(serializers.ModelSerializer):
             return initial_price + (duration * standard_time)
         else:
             return initial_price + (duration * reduced_tariff)
-
-
-class InternalServerError(APIException):
-    status_code = 500
-    default_code = 'internal_server_error'
-    default_detail = 'Internal Server Error'

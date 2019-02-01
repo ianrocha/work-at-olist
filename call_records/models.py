@@ -1,9 +1,15 @@
 from django.db import models
+from django.db.models.functions import ExtractHour
 
 
 class CallRecordQuerySet(models.query.QuerySet):
     def by_call_id(self):
         return self.order_by('call_id', '-record_type')
+
+    def get_record_pair(self, call_id, record_type):
+        return self.filter(call_id__exact=call_id,
+                           record_type__exact=record_type
+                           ).annotate(record_hour=ExtractHour('record_timestamp')).values()
 
 
 class CallRecordManager(models.Manager):
@@ -12,6 +18,12 @@ class CallRecordManager(models.Manager):
 
     def by_call_id(self):
         return self.get_queryset().by_call_id()
+
+    def get_record_pair(self, call_id, record_type):
+        qs = self.get_queryset().get_record_pair(call_id=call_id, record_type=record_type)
+        if qs.exists():
+            return qs
+        return None
 
 
 class CallRecord(models.Model):

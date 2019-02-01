@@ -45,6 +45,7 @@ class CallRecordViewSet(ModelViewSet):
                 error = InternalServerError()
                 error.detail = 'End record_type has no phone source or phone destination'
                 raise error
+        serializer.save()
 
 
 class InternalServerError(APIException):
