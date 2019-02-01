@@ -12,7 +12,7 @@ class CallRecordViewSet(ModelViewSet):
     serializer_class = CallRecordSerializer
 
     def get_queryset(self):
-        return CallRecord.objects.all().order_by('call_id', '-record_type')
+        return CallRecord.objects.by_call_id()
 
     def perform_create(self, serializer):
         record_type = self.request.data['record_type']
