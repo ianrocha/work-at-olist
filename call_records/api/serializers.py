@@ -1,4 +1,3 @@
-from django.core.validators import RegexValidator
 from django.db.models.functions import ExtractHour
 from rest_framework import serializers
 from rest_framework.exceptions import APIException
@@ -9,9 +8,8 @@ from telephone_bill.models import TelephoneBill
 
 
 class CallRecordSerializer(serializers.ModelSerializer):
-    phone_validator = RegexValidator(regex=r'^((10)|([1-9][1-9]))\d{8,9}$')
-    phone_source = serializers.CharField(max_length=11, validators=[phone_validator])
-    phone_destination = serializers.CharField(max_length=11, validators=[phone_validator])
+    phone_source = serializers.CharField(max_length=11, allow_blank=True)
+    phone_destination = serializers.CharField(max_length=11, allow_blank=True)
 
     class Meta:
         validators = [
@@ -33,12 +31,10 @@ class CallRecordSerializer(serializers.ModelSerializer):
         """
 
         if validated_data['record_type'] == 'start':
-            self.validate_start_record(validated_data)
             pair_record = CallRecord.objects.filter(call_id__exact=validated_data['call_id'],
                                                     record_type__exact='end'
                                                     ).annotate(record_hour=ExtractHour('record_timestamp')).values()
         else:
-            self.validate_end_record(validated_data)
             pair_record = CallRecord.objects.filter(call_id__exact=validated_data['call_id'],
                                                     record_type__exact='start'
                                                     ).annotate(record_hour=ExtractHour('record_timestamp')).values()
@@ -50,34 +46,6 @@ class CallRecordSerializer(serializers.ModelSerializer):
         record = CallRecord.objects.create(**validated_data)
         record.save()
         return record
-
-    def validate_start_record(self, validated_data):
-        """
-        Validate record_type is equal 'start', the record must have the phone-source and phone-destination
-        :param:
-        validated_data: Call Record sent by API
-        :return: Nothing or Raises a Internal Server Error
-        """
-        # if validated_data['record_type'] == 'start':
-        if validated_data['phone_source'] == '' or validated_data['phone_destination'] == '':
-            # raise ValidationError(detail='')
-            error = InternalServerError()
-            error.detail = 'Start record_type must have a phone source and a phone destination'
-            raise error
-
-    def validate_end_record(self, validated_data):
-        """
-        Validate record_type is equal 'end', the record can't have the phone-source or phone-destination
-        :param:
-        validated_data: Call Record sent by API
-        :return: Nothing or Raises a Internal Server Error
-        """
-        # if validated_data['record_type'] == 'end':
-        if validated_data['phone_source'] or validated_data['phone_destination']:
-            # raise ValidationError(detail='')
-            error = InternalServerError()
-            error.detail = 'End record_type has no phone source or phone destination'
-            raise error
 
     def insert_bill_record(self, validated_data, pair_record):
         """
@@ -144,14 +112,6 @@ class CallRecordSerializer(serializers.ModelSerializer):
             return initial_price + (duration * standard_time)
         else:
             return initial_price + (duration * reduced_tariff)
-
-    # def validate_phone(self, phone):
-    #     if phone.RegexValidator(regex=r'^((10)|([1-9][1-9]))\d{8,9}$'):
-    #         return True
-    #     else:
-    #         error = InternalServerError()
-    #         error.detail = 'Invalid Phone Number'
-    #         raise error
 
 
 class InternalServerError(APIException):

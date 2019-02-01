@@ -1,6 +1,9 @@
+from rest_framework.exceptions import APIException
 from rest_framework.permissions import AllowAny
 from rest_framework.viewsets import ModelViewSet
+
 from call_records.models import CallRecord
+from record_keeper.utils import validate_phone_number
 from .serializers import CallRecordSerializer
 
 
@@ -11,75 +14,40 @@ class CallRecordViewSet(ModelViewSet):
     def get_queryset(self):
         return CallRecord.objects.all().order_by('call_id', '-record_type')
 
-    def list(self, request, *args, **kwargs):
-        """
-        List all Call Records
-        :param:
-        page: A page number within the paginated result set.
-        """
-        return super(CallRecordViewSet, self).list(request, *args, **kwargs)
+    def perform_create(self, serializer):
+        record_type = self.request.data['record_type']
+        phone_source = self.request.data['phone_source']
+        phone_destination = self.request.data['phone_destination']
 
-    def create(self, request, *args, **kwargs):
-        """
-        Create a new Call_Record in CallRecordModel.
-        :param:
-        data:
-        {
-        "call_id": Unique for each call record pair;
-        "phone_source": The subscriber phone number that originated the call; Just when record_type = "start"
-        "phone_destination": The phone number receiving the call; Just when record_type = "start"
-        "record_type": Indicate if it's a call "start" or "end" record;
-        "record_timestamp": The timestamp of when the event occurred.
-        }
-        """
-        return super(CallRecordViewSet, self).create(request, *args, **kwargs)
+        if record_type == 'start':
+            # Validate record_type is equal 'start', the record must have the phone-source and phone-destination
+            if phone_source == '' or phone_destination == '':
+                error = InternalServerError()
+                error.detail = 'Start record_type must have a phone source and a phone destination'
+                raise error
 
-    def retrieve(self, request, *args, **kwargs):
-        """
-        Get a Call Record
-        :param:
-        id: Number of the call record.
-        """
-        return super(CallRecordViewSet, self).retrieve(request, *args, **kwargs)
+            # Validate if phone source is a valid phone number
+            source_ok = validate_phone_number(phone_source)
+            if not source_ok:
+                error = InternalServerError()
+                error.detail = 'Source phone is not a valid phone number'
+                raise error
 
-    def destroy(self, request, *args, **kwargs):
-        """
-        Delete a Call Record
-        :param:
-        id: Number of the Call record.
-        """
-        return super(CallRecordViewSet, self).destroy(request, *args, **kwargs)
+            # Validate if phone destination is a valid phone number
+            destination_ok = validate_phone_number(phone_destination)
+            if not destination_ok:
+                error = InternalServerError()
+                error.detail = 'Destination phone is not a valid phone number'
+                raise error
+        else:
+            if phone_source != '' or phone_destination != '':
+                # Validate record_type is equal 'end', the record can't have the phone-source or phone-destination
+                error = InternalServerError()
+                error.detail = 'End record_type has no phone source or phone destination'
+                raise error
 
-    def update(self, request, *args, **kwargs):
-        """
-        Update all the fields of a Call Record
-        :param:
-        id: Number of the call record;
-        data: (All fields are required)
-        {
-        "call_id": Unique for each call record pair;
-        "phone_source": The subscriber phone number that originated the call; Required only when record_type = "start"
-        "phone_destination": The phone number receiving the call; Required only when record_type = "start"
-        "record_type": Indicate if it's a call "start" or "end" record;
-        "record_timestamp": The timestamp of when the event occurred.
-        }
-        return: The call record updated
-        """
-        return super(CallRecordViewSet, self).update(request, *args, **kwargs)
 
-    def partial_update(self, request, *args, **kwargs):
-        """
-        Update a field of a Call Record
-        :param:
-        id: Number of the call record;
-        data: (Only the field to be updated is required)
-        {
-        "call_id": Unique for each call record pair;
-        "phone_source": The subscriber phone number that originated the call; Required only when record_type = "start"
-        "phone_destination": The phone number receiving the call; Required only when record_type = "start"
-        "record_type": Indicate if it's a call "start" or "end" record;
-        "record_timestamp": The timestamp of when the event occurred.
-        }
-        return: The call record updated
-        """
-        return super(CallRecordViewSet, self).partial_update(request, *args, **kwargs)
+class InternalServerError(APIException):
+    status_code = 500
+    default_code = 'internal_server_error'
+    default_detail = 'Internal Server Error'
