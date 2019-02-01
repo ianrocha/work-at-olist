@@ -3,16 +3,17 @@ from django.db import models
 
 
 class TelephoneBillQuerySet(models.query.QuerySet):
-    def filtered_by_source(self, source):
-        return self.filter(source__exact=source).order_by('start_date', 'start_time')
+    def by_source_and_period(self, source, period):
+        qs = self.filter(source__exact=source)
+        return qs.filter(period__exact=period).order_by('start_date', 'start_time')
 
 
 class TelephoneBillManager(models.Manager):
     def get_queryset(self):
-        return self.TelephoneBillQuerySet(self.model, using=self._db)
+        return TelephoneBillQuerySet(self.model, using=self._db)
 
-    def filtered_by_source(self, source):
-        return self.get_queryset().filtered_by_source(source=source)
+    def by_source_and_period(self, source, period):
+        return self.get_queryset().by_source_and_period(source=source, period=period)
 
     def create_bill_record(self, record, pair_record):
         if record['record_type'] == 'start':

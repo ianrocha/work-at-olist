@@ -24,15 +24,14 @@ class TelephoneBillViewSet(ModelViewSet):
         source_phone = self.request.query_params.get('source')
         bill_period = self.request.query_params.get('period')
 
+        if not bill_period:
+            month = datetime.date.today().month - 1
+            year = datetime.date.today().year
+            bill_period = str(month) + '-' + str(year)
+
         if source_phone:
-            queryset = TelephoneBill.objects.filtered_by_source(source=source_phone)
-
-            if not bill_period:
-                month = datetime.date.today().month - 1
-                year = datetime.date.today().year
-                bill_period = str(month) + '-' + str(year)
-
-            return queryset.filter(period__exact=bill_period).order_by('start_date', 'start_time')
+            queryset = TelephoneBill.objects.by_source_and_period(source=source_phone, period=bill_period)
+            return queryset
         else:
             queryset = TelephoneBill.objects.all().order_by('start_date', 'start_time')
             return queryset
